@@ -18,6 +18,11 @@ pipeline {
             }
         }
 
+        stage('Run Tests') {
+            steps {
+                sh 'npm test'
+            }
+            
         stage('Run Unit Tests') {
             steps {
                 sh 'npm test -- --coverage'
