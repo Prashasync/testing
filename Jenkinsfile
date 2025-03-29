@@ -10,13 +10,13 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm install'
+                sh 'sudo npm install'
             }
         }
 
         stage('Run Tests') {  // ✅ Stage must be inside `stages`
             steps {           // ✅ Steps must be inside `steps`
-                sh 'npm test'
+                sh 'sudo npm test'
             }
         }
     }
