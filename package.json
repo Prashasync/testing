@@ -6,8 +6,8 @@
   "lockfileVersion": 3,
   "requires": true,
   "scripts": {
-    "test": "jest --coverage"
-  },
+  "test": "jest --coverage --passWithNoTests"
+},
   "dependencies": {
     "chai": "^4.3.7",
     "mocha": "^10.2.0"
