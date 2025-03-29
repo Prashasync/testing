@@ -1,6 +1,21 @@
 {
   "name": "Test_Pipeline_Prasha.io",
+  "version": "1.0.0",
+  "description": "Test project with Jenkins CI/CD",
+  "main": "index.js",
   "lockfileVersion": 3,
   "requires": true,
-  "packages": {}
+  "scripts": {
+    "test": "jest --coverage"
+  },
+  "dependencies": {
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0"
+  },
+  "devDependencies": {
+    "jest": "^29.6.1"
+  },
+  "author": "Your Name",
+  "license": "MIT"
 }
+
