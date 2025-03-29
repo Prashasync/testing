@@ -59,9 +59,5 @@ pipeline {
             }
         }
     }
-post {
-    always {
-        slackSend channel: '#test-reports', message: "Test execution completed: ${currentBuild.result}"
-    }
 }
 }
