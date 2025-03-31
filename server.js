@@ -1,11 +1,7 @@
-stage('Run Integration Tests') {
-    steps {
-        script {
-            if (fileExists('tests/integration')) {
-                sh 'npm run test:integration'
-            } else {
-                echo 'Skipping integration tests: No test files found'
-            }
-        }
-    }
-}
+const express = require('express');
+const app = express();
+
+const PORT = process.env.PORT || 3000;
+app.get('/', (req, res) => res.send('Server is running!'));
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
