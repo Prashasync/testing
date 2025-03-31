@@ -18,8 +18,9 @@ pipeline {
                     try {
                         git credentialsId: 'github-credentials', url: 'https://github.com/Prashasync/testing.git', branch: 'main'
                     } catch (Exception e) {
-                        echo 'WARNING: Git credentials not found! Using public access.'
-                        git url: 'https://github.com/Prashasync/testing.git', branch: 'main'
+                        echo 'WARNING: Git credentials not found! Using a personal access token.'
+                        sh 'git clone https://<YOUR_GITHUB_TOKEN>@github.com/Prashasync/testing.git .'
+                        sh 'git checkout main'
                     }
                 }
             }
@@ -27,8 +28,9 @@ pipeline {
 
         stage('Set Permissions') {
             steps {
-                sh 'sudo chown -R jenkins:jenkins /var/lib/jenkins/workspace/Test_Pipeline_Prasha.io'
-                sh 'sudo chmod -R 775 /var/lib/jenkins/workspace/Test_Pipeline_Prasha.io'
+                script {
+                    sh 'chmod -R 777 /var/lib/jenkins/workspace/Test_Pipeline_Prasha.io'
+                }
             }
         }
 
@@ -99,12 +101,12 @@ pipeline {
     post {
         always {
             echo 'Archiving test results and artifacts...'
-            junit 'tests/results/*.xml'
-            archiveArtifacts artifacts: 'tests/results/*.xml, coverage/**', fingerprint: true
-
             script {
-                if (currentBuild.result == 'FAILURE') {
-                    echo 'Build failed! Check test results.'
+                if (fileExists('tests/results')) {
+                    junit 'tests/results/*.xml'
+                    archiveArtifacts artifacts: 'tests/results/*.xml, coverage/**', fingerprint: true
+                } else {
+                    echo 'Test reports directory not found!'
                 }
             }
         }
