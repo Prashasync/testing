@@ -1,13 +1,13 @@
 {
   "name": "testing-project",
-  "version": "1.0.1",
-  "description": "Automated testing pipeline with improved dependencies and fixes",
+  "version": "1.0.0",
+  "description": "Automated testing pipeline",
   "main": "index.js",
   "scripts": {
     "test:unit": "jest --coverage --testResultsProcessor jest-junit",
     "test:integration": "mocha tests/integration --reporter mocha-junit-reporter || echo 'No integration tests found'",
     "test:api": "jest --coverage --testResultsProcessor jest-junit",
-    "test:e2e": "xvfb-run --auto-servernum cypress run --reporter junit --reporter-options 'mochaFile=results/e2e-results.xml'",
+    "test:e2e": "xvfb-run --auto-servernum cypress run --reporter junit --reporter-options 'mochaFile=tests/results/e2e-results.xml'",
     "lint": "eslint ."
   },
   "engines": {
@@ -19,16 +19,16 @@
   "devDependencies": {
     "jest": "^29.7.0",
     "mocha": "^11.1.0",
-    "cypress": "^13.17.0",
+    "cypress": "^13.0.0",
     "supertest": "^6.3.0",
     "mocha-junit-reporter": "^2.0.2",
     "jest-junit": "^16.0.0",
-    "eslint": "^8.57.1",
-    "xvfb-maybe": "^0.2.1"
+    "eslint": "^8.49.0"
   },
   "jest": {
     "collectCoverage": true,
     "coverageDirectory": "coverage",
-    "reporters": ["default", "jest-junit"]
+    "reporters": ["default", "jest-junit"],
+    "testResultsProcessor": "jest-junit"
   }
 }
