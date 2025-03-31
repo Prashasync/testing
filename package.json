@@ -1,39 +1,33 @@
 {
   "name": "testing-project",
   "version": "1.0.0",
-  "description": "Automated testing setup for CI/CD pipeline",
+  "description": "Automated testing pipeline",
   "main": "index.js",
   "scripts": {
     "test:unit": "jest --coverage",
     "test:integration": "mocha tests/integration --reporter mocha-junit-reporter",
-    "test:api": "mocha tests/api --reporter mocha-junit-reporter",
-    "test:e2e": "cypress run --reporter junit --reporter-options mochaFile=test-results/cypress-[hash].xml"
+    "test:api": "supertest tests/api",
+    "test:e2e": "cypress run",
+    "lint": "eslint ."
   },
-  "jest": {
-    "reporters": ["default", "jest-junit"]
-  },
-  "jest-junit": {
-    "outputDirectory": "test-results",
-    "outputName": "jest-results.xml"
+  "engines": {
+    "node": ">=20.9.0"
   },
   "dependencies": {
     "express": "^4.18.2"
   },
   "devDependencies": {
-    "jest": "^29.0.0",
+    "jest": "^29.7.0",
     "mocha": "^11.1.0",
-    "mocha-junit-reporter": "^2.2.0",
+    "cypress": "^13.0.0",
     "supertest": "^6.3.0",
-    "cypress": "^12.12.0",
-    "jest-junit": "^16.0.0"
+    "mocha-junit-reporter": "^2.0.2",
+    "jest-junit": "^16.0.0",
+    "eslint": "^8.49.0"
   },
-  "engines": {
-    "node": ">=18.18.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Prashasync/testing.git"
-  },
-  "author": "QA Team",
-  "license": "MIT"
+  "jest": {
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "reporters": ["default", "jest-junit"]
+  }
 }
