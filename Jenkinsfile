@@ -29,7 +29,7 @@ pipeline {
         stage('Set Permissions') {
             steps {
                 script {
-                    sh 'chmod -R 777 /var/lib/jenkins/workspace/Test_Pipeline_Prasha.io'
+                    sh 'chmod -R 777 "$WORKSPACE"'
                 }
             }
         }
@@ -40,6 +40,15 @@ pipeline {
                 sh 'npm -v'
                 sh 'npm install'
                 sh 'npm audit fix --force || true'
+            }
+        }
+
+        stage('Ensure Cypress Support File Exists') {
+            steps {
+                script {
+                    sh 'mkdir -p cypress/support && touch cypress/support/e2e.js'
+                    sh "echo '// Cypress support file placeholder' > cypress/support/e2e.js"
+                }
             }
         }
 
@@ -83,11 +92,10 @@ pipeline {
 
         stage('Start Application') {
             steps {
-                sh 'PORT=3000 nohup npm start &'
+                sh 'PORT=3000 nohup npm start &' 
                 sh 'npx wait-on http://127.0.0.1:3000'
             }
         }
-
 
         stage('Run End-to-End Tests') {
             when {
