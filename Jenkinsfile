@@ -2,12 +2,13 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'NodeJS-20.9'  // Use correct Node.js version
+        nodejs 'NodeJS-20.9'  // Ensure correct Node.js version
         git 'Default'  // Ensure Git is installed
     }
 
     environment {
         CI = 'true'
+        DISPLAY = ':99'  // Required for Cypress
     }
 
     stages {
@@ -26,6 +27,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
+                sh 'sudo apt-get update && sudo apt-get install -y xvfb'  // Install Xvfb for Cypress
                 sh 'node -v'
                 sh 'npm -v'
                 sh 'npm install'
@@ -71,7 +73,9 @@ pipeline {
                 expression { currentBuild.result != 'FAILURE' }
             }
             steps {
-                sh 'npm run test:e2e'
+                script {
+                    sh 'Xvfb :99 & npm run test:e2e'
+                }
             }
         }
     }
