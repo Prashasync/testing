@@ -83,10 +83,11 @@ pipeline {
 
         stage('Start Application') {
             steps {
-                sh 'nohup npm start &' // Start the app in the background
-                sh 'npx wait-on http://127.0.0.1:46489' // Wait for the app to be ready
+                sh 'PORT=3000 nohup npm start &'
+                sh 'npx wait-on http://127.0.0.1:3000'
             }
         }
+
 
         stage('Run End-to-End Tests') {
             when {
