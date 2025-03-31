@@ -2,7 +2,7 @@
   "name": "testing-project",
   "version": "1.0.0",
   "description": "Automated testing pipeline",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test:unit": "jest --coverage --testResultsProcessor jest-junit",
     "test:integration": "mocha tests/integration --reporter mocha-junit-reporter || echo 'No integration tests found'",
