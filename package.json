@@ -4,10 +4,10 @@
   "description": "Automated testing pipeline",
   "main": "index.js",
   "scripts": {
-    "test:unit": "jest --coverage",
+    "test:unit": "jest --coverage --testResultsProcessor jest-junit",
     "test:integration": "mocha tests/integration --reporter mocha-junit-reporter || echo 'No integration tests found'",
-    "test:api": "supertest tests/api",
-    "test:e2e": "cypress run",
+    "test:api": "jest --coverage --testResultsProcessor jest-junit",
+    "test:e2e": "cypress run --reporter junit --reporter-options 'mochaFile=results/e2e-results.xml'",
     "lint": "eslint ."
   },
   "engines": {
