@@ -2,13 +2,12 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'NodeJS-20.9'  // Ensure correct Node.js version
-        git 'Default'  // Ensure Git is installed
+        nodejs 'NodeJS-20.9'
+        git 'Default'
     }
 
     environment {
         CI = 'true'
-        DISPLAY = ':99'  // Required for Cypress
     }
 
     stages {
@@ -27,22 +26,22 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'sudo apt-get update && sudo apt-get install -y xvfb'  // Install Xvfb for Cypress
                 sh 'node -v'
                 sh 'npm -v'
                 sh 'npm install'
-                sh 'npm audit fix --force || true'  // Avoid breaking the pipeline
+                sh 'npm audit fix --force || true'
             }
         }
 
         stage('Run Unit & Integration Tests') {
             steps {
                 script {
+                    def unitTestPassed = true
                     try {
                         sh 'npm run test:unit'
                     } catch (Exception e) {
                         echo 'Unit tests failed!'
-                        currentBuild.result = 'FAILURE'
+                        unitTestPassed = false
                     }
 
                     if (fileExists('tests/integration')) {
@@ -50,10 +49,14 @@ pipeline {
                             sh 'npm run test:integration'
                         } catch (Exception e) {
                             echo 'Integration tests failed!'
-                            currentBuild.result = 'FAILURE'
+                            unitTestPassed = false
                         }
                     } else {
                         echo 'Skipping Integration Tests: No test files found'
+                    }
+
+                    if (!unitTestPassed) {
+                        error 'Unit or Integration tests failed. Stopping pipeline.'
                     }
                 }
             }
@@ -73,9 +76,7 @@ pipeline {
                 expression { currentBuild.result != 'FAILURE' }
             }
             steps {
-                script {
-                    sh 'Xvfb :99 & npm run test:e2e'
-                }
+                sh 'xvfb-run --auto-servernum npm run test:e2e'
             }
         }
     }
@@ -83,8 +84,8 @@ pipeline {
     post {
         always {
             echo 'Archiving test results and artifacts...'
-            junit 'test-results/*.xml'
-            archiveArtifacts artifacts: 'test-results/*.xml, coverage/**', fingerprint: true
+            junit 'tests/results/*.xml'
+            archiveArtifacts artifacts: 'tests/results/*.xml, coverage/**', fingerprint: true
 
             script {
                 if (currentBuild.result == 'FAILURE') {
