@@ -2,7 +2,8 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'NodeJS-20'  // Use Node.js 20+ for compatibility
+        nodejs 'NodeJS-20.9'  // Ensure correct Node.js version
+        git 'git'  // Explicitly define Git tool
     }
 
     environment {
@@ -12,70 +13,77 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', 
-                    credentialsId: 'github-credentials', 
-                    url: 'https://github.com/Prashasync/testing.git'
+                git credentialsId: 'github-credentials', url: 'https://github.com/Prashasync/testing.git', branch: 'main'
             }
         }
 
         stage('Install Dependencies') {
             steps {
                 sh 'npm install'
-                sh 'npm install jest mocha cypress supertest mocha-junit-reporter jest-junit --save-dev'
+                sh 'npm audit fix --force'
             }
         }
 
-        stage('Run Unit & Integration Tests') {
+        stage('Run Unit Tests') {
             steps {
                 script {
                     try {
-                        sh 'npm run test:unit'  
-                        sh 'npm run test:integration'  
+                        sh 'npm run test:unit'
                     } catch (Exception e) {
-                        echo 'Unit/Integration tests failed!'
+                        echo 'Unit tests failed!'
                         currentBuild.result = 'FAILURE'
-                        throw e
+                    }
+                }
+            }
+        }
+
+        stage('Run Integration Tests') {
+            steps {
+                script {
+                    if (fileExists('tests/integration')) {
+                        try {
+                            sh 'npm run test:integration'
+                        } catch (Exception e) {
+                            echo 'Integration tests failed!'
+                            currentBuild.result = 'FAILURE'
+                        }
+                    } else {
+                        echo 'Skipping Integration Tests: No test files found'
                     }
                 }
             }
         }
 
         stage('Run API Tests') {
+            when {
+                expression { currentBuild.result != 'FAILURE' }
+            }
             steps {
-                script {
-                    try {
-                        sh 'npm run test:api'  
-                    } catch (Exception e) {
-                        echo 'API tests failed!'
-                        currentBuild.result = 'FAILURE'
-                        throw e
-                    }
-                }
+                sh 'npm run test:api'
             }
         }
 
         stage('Run End-to-End Tests') {
+            when {
+                expression { currentBuild.result != 'FAILURE' }
+            }
             steps {
-                script {
-                    try {
-                        sh 'npx cypress run --reporter junit --reporter-options mochaFile=test-results/cypress-[hash].xml'
-                    } catch (Exception e) {
-                        echo 'E2E tests failed!'
-                        currentBuild.result = 'FAILURE'
-                        throw e
-                    }
-                }
+                sh 'npm run test:e2e'
             }
         }
     }
 
     post {
         always {
-            junit '**/test-results/*.xml'  
-            archiveArtifacts artifacts: '**/test-results/**', fingerprint: true
-        }
-        failure {
-            echo "Build failed! Check test results."
+            echo 'Archiving test results and artifacts...'
+            junit 'test-results/*.xml'
+            archiveArtifacts artifacts: 'test-results/*.xml, coverage/**', fingerprint: true
+
+            script {
+                if (currentBuild.result == 'FAILURE') {
+                    echo 'Build failed! Check test results.'
+                }
+            }
         }
     }
 }
