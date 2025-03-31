@@ -8,6 +8,7 @@ pipeline {
 
     environment {
         CI = 'true'
+        XDG_RUNTIME_DIR = '/tmp' // Fix Cypress runtime error
     }
 
     stages {
@@ -21,6 +22,13 @@ pipeline {
                         git url: 'https://github.com/Prashasync/testing.git', branch: 'main'
                     }
                 }
+            }
+        }
+
+        stage('Set Permissions') {
+            steps {
+                sh 'sudo chown -R jenkins:jenkins /var/lib/jenkins/workspace/Test_Pipeline_Prasha.io'
+                sh 'sudo chmod -R 775 /var/lib/jenkins/workspace/Test_Pipeline_Prasha.io'
             }
         }
 
@@ -68,6 +76,13 @@ pipeline {
             }
             steps {
                 sh 'npm run test:api'
+            }
+        }
+
+        stage('Start Application') {
+            steps {
+                sh 'nohup npm start &' // Start the app in the background
+                sh 'npx wait-on http://127.0.0.1:3000' // Wait for the app to be ready
             }
         }
 
