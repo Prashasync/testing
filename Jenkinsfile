@@ -84,7 +84,7 @@ pipeline {
         stage('Start Application') {
             steps {
                 sh 'nohup npm start &' // Start the app in the background
-                sh 'npx wait-on http://172.31.29.21:3000' // Wait for the app to be ready
+                sh 'npx wait-on http://127.0.0.1:46489' // Wait for the app to be ready
             }
         }
 
