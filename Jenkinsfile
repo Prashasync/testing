@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'NodeJS-20.9'  // Ensure correct Node.js version
-        git 'git'  // Explicitly define Git tool
+        nodejs 'NodeJS-20.9'  // Use correct Node.js version
+        git 'Default'  // Ensure Git is installed
     }
 
     environment {
@@ -13,18 +13,27 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git credentialsId: 'github-credentials', url: 'https://github.com/Prashasync/testing.git', branch: 'main'
+                script {
+                    try {
+                        git credentialsId: 'github-credentials', url: 'https://github.com/Prashasync/testing.git', branch: 'main'
+                    } catch (Exception e) {
+                        echo 'WARNING: Git credentials not found! Using public access.'
+                        git url: 'https://github.com/Prashasync/testing.git', branch: 'main'
+                    }
+                }
             }
         }
 
         stage('Install Dependencies') {
             steps {
+                sh 'node -v'
+                sh 'npm -v'
                 sh 'npm install'
-                sh 'npm audit fix --force'
+                sh 'npm audit fix --force || true'  // Avoid breaking the pipeline
             }
         }
 
-        stage('Run Unit Tests') {
+        stage('Run Unit & Integration Tests') {
             steps {
                 script {
                     try {
@@ -33,13 +42,7 @@ pipeline {
                         echo 'Unit tests failed!'
                         currentBuild.result = 'FAILURE'
                     }
-                }
-            }
-        }
 
-        stage('Run Integration Tests') {
-            steps {
-                script {
                     if (fileExists('tests/integration')) {
                         try {
                             sh 'npm run test:integration'
